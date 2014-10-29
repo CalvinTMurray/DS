@@ -1,0 +1,8 @@
+7
+node 1, 5.43, 6.23, 20.3
+node 2, 12.2, 6.2, 190.2
+node 5, 14.3, 11.4, 19.4
+bcst from 1
+bcst from 2
+bcst from 1
+bcst from 5
