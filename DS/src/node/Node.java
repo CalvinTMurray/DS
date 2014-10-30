@@ -4,7 +4,9 @@
 package node;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 
@@ -30,17 +32,9 @@ public class Node extends NodeMSTProps implements NodeInterface {
 	 * @param minimumBudget the minimum amount of energy required for the node to operate
 	 */
 	public Node(int nodeID, double positionX, double positionY, double energy, double minimumBudget) {
-		super.setNodeID(nodeID);
-		super.setPosition(positionX, positionY);
-		super.setEnergy(energy);
-		super.setMinimumBudget(minimumBudget);
-		super.setCommunicationRadius(DEFAULT_COMMUNICATION_RADIUS);
 		
-		neighbourNodes = new HashMap<NodeInterface, Double>();
+		this(nodeID, positionX, positionY, energy, minimumBudget, DEFAULT_COMMUNICATION_RADIUS);
 		
-		super.initMSTStructures();
-		
-		nodeThread = new NodeThread(this);
 	}
 	
 	/**
@@ -83,10 +77,10 @@ public class Node extends NodeMSTProps implements NodeInterface {
 	}
 	
 	/**
-	 * Get the node which has the minimum edge weight form this node's neighbours
+	 * Find the node which has the minimum edge weight form this node's neighbourhood
 	 * @return the node which has the least edge weight
 	 */
-	public NodeInterface getMinimumDistanceNeighbourNode(){
+	public NodeInterface findMinimumDistanceNeighbourNode(){
 		
 		NodeInterface minimumDistanceNode = null;
 		double distance = 0;
@@ -105,7 +99,36 @@ public class Node extends NodeMSTProps implements NodeInterface {
 		
 		return minimumDistanceNode;
 	}
-
+	
+	/**
+	 * Find the current Minimum Weighted Outgoing Edge and set it
+	 */
+	public void setCurrentMinimumWeightedOutgoingEdge(){
+		
+		
+		NodeInterface minimumDistanceNode = null;
+		double distance = 0;
+		
+		boolean firstEntry = true;
+		
+		Map<NodeInterface, Double> nodes = new HashMap<NodeInterface, Double>(neighbourNodes);
+		
+		// Remove the nodes which are already part of the MST
+		nodes.keySet().removeAll(getMstChildNodes().values());
+		
+		for (NodeInterface node : nodes.keySet()){
+			if (firstEntry) {
+				distance = nodes.get(node);
+				minimumDistanceNode = node;
+				firstEntry = false;
+			} else if (nodes.get(node) < distance){
+				distance = nodes.get(node);
+				minimumDistanceNode = node;
+			}
+		}
+		
+		super.setCurrentMWOE(new MWOE(minimumDistanceNode, distance));
+	}
 	
 	@Override
 	public NodeThread getNodeThread() {

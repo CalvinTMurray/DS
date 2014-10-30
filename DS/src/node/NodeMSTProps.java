@@ -3,12 +3,17 @@
  */
 package node;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.TreeMap;
+
+import message.Payload;
 
 /**
  * 
  * @author Calvin.T.Murray (S1126659)
+ * @param <T>
  *
  */
 public class NodeMSTProps extends NodeGeneralProps {
@@ -20,16 +25,25 @@ public class NodeMSTProps extends NodeGeneralProps {
 	private NodeInterface mstParentNode;
 	
 	private int receivedConvergecastMessages;
-
+	
 	// TODO variable for the nextMinimumWeightedEdge in the MST
+	private MWOE currentMWOE;
 	// TODO variable that stores the payloads received from convergecast messages
 	// so that they can be compared to find the payload that contains the minimum weighted edge
+	private List<Payload<?>> receivedPayloads;
+	
+	
+	public MWOE minimumWeightedOutgoingEdgeOfTheComponent;
+	
+	
+
 	/**
 	 * Initialise the MST data structures
 	 */
 	protected void initMSTStructures(){
 		leaderOfComponent = true;
 		mstChildNodes = new TreeMap<Integer, NodeInterface>(Collections.reverseOrder());
+		receivedPayloads = new ArrayList<Payload<?>>();
 	}
 	
 	/**
@@ -101,20 +115,20 @@ public class NodeMSTProps extends NodeGeneralProps {
 	 * @return whether it is true that this node has a parent
 	 */
 	public boolean hasParentNode(){
-		return mstParentNode == null;
+		return mstParentNode != null;
 	}
 	
 	/**
 	 * Increment the count of the number of received convergecast messages by 1
 	 */
-	public synchronized void incrementReceivedConvergecastMessageCount(){
+	public void incrementReceivedConvergecastMessageCount(){
 		this.receivedConvergecastMessages++;
 	}
 	
 	/**
 	 * Reset the count of the number of received convergecast messages to 0
 	 */
-	public synchronized void resetReceivedConvergecastMessageCount(){
+	public void resetReceivedConvergecastMessageCount(){
 		this.receivedConvergecastMessages = 0;
 	}
 	
@@ -122,7 +136,46 @@ public class NodeMSTProps extends NodeGeneralProps {
 	 * 
 	 * @return the current count of received convergecast messages
 	 */
-	public synchronized int getReceivedConvergecastMessageCount(){
+	public int getReceivedConvergecastMessageCount(){
 		return this.receivedConvergecastMessages;
+	}
+
+	/**
+	 * 
+	 * @return the current Minimum Weighted Outgoing Edge
+	 */
+	public MWOE getCurrentMWOE() {
+		return currentMWOE;
+	}
+	
+	/**
+	 * Set the current Minimum Weighted Outgoing Edge
+	 * @param currentMWOE
+	 */
+	protected void setCurrentMWOE(MWOE currentMWOE) {
+		this.currentMWOE = currentMWOE;
+	}
+	
+	/**
+	 * 
+	 * @return the payloads which this node has received from its MST child nodes
+	 */
+	public List<Payload<?>> getReceivedPayloads(){
+		return receivedPayloads;
+	}
+	
+	/**
+	 * Add a child's payload to this node's received payloads
+	 * @param payload
+	 */
+	public void addPayload(Payload<?> payload){
+		receivedPayloads.add(payload);
+	}
+	
+	/**
+	 * Empty the received payloads
+	 */
+	public void clearReceivedPayloads(){
+		this.receivedPayloads = new ArrayList<Payload<?>>();
 	}
 }

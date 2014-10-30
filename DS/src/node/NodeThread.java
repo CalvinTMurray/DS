@@ -36,8 +36,8 @@ public class NodeThread extends Thread {
 	@Override
 	public void run() {
 		
-		// Continue operating and processing messages if we have enough energy
-		while (node.getEnergy() > node.getMinimumBudget()){
+//		// Continue operating and processing messages if we have enough energy
+//		while (node.getEnergy() > node.getMinimumBudget()){
 			
 			MessageInterface message;
 
@@ -45,7 +45,7 @@ public class NodeThread extends Thread {
 				message.performAction(node);
 				System.out.println("Performed action on node: " + node.getNodeID());
 			}
-		}
+//		}
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class NodeThread extends Thread {
 	 * @param node the ID of the node you want to send the message to
 	 * @param message the message which should be sent to the node
 	 */
-	public void sendMessage(MessageInterface message){
+	private void sendMessage(MessageInterface message){
 		
 	}
 	
@@ -63,5 +63,7 @@ public class NodeThread extends Thread {
 	 */
 	public synchronized void addMessageToNodeQueue(MessageInterface message){
 		receivedMessages.add(message);
+		// Process the message/messages
+		this.run();
 	}
 }

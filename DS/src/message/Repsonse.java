@@ -24,7 +24,6 @@ public class Repsonse implements MessageInterface {
 	 * A Response message triggered by a discovery message
 	 * @param toNode the node to send the response message to
 	 * @param distance the distance between the node which received the discovery message and the node which will send the response message
-	 * @param node the node which will be added as a neighbour to the node which sent the discovery message
 	 */
 	public Repsonse(NodeInterface toNode, Double distance) {
 		this.toNode = toNode;

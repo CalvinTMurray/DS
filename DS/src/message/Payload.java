@@ -4,7 +4,7 @@
 package message;
 
 /**
- * 
+ * A payload is a generic data structure which holds some data
  * @author Calvin.T.Murray (S1126659)
  *
  */

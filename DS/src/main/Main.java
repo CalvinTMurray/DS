@@ -58,8 +58,16 @@ public class Main {
 		new BaseStation(nodes);
 		BaseStation.contstrucMST();
 		
+		
 		while (true){
 			System.out.println("Number of threads running: " + Thread.activeCount());
+			
+			// Testing if the leader knows the node to inform that they have the minimum edge
+			for (Node n : nodes.values()){
+				System.out.println("The minimum weighted edge to add for node " + n.getNodeID() + " is: " + n.minimumWeightedOutgoingEdgeOfTheComponent.getNode().getNodeID());
+			}
+			
+			
 			Thread.sleep(1000);
 		}
 		
