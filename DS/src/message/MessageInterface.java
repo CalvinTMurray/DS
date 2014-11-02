@@ -13,6 +13,7 @@ import node.Node;
  *
  */
 public interface MessageInterface {
+	
 	/**
 	 * When the message is received perform this action
 	 * @param node the node which should perform this action (e.g. m.performAction(this))

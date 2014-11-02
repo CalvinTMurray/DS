@@ -3,12 +3,15 @@
  */
 package main;
 
+import internetLayer.NetworkRoutingProtocol;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 import node.Node;
+import node.NodeInterface;
 
 /**
  * 
@@ -54,9 +57,12 @@ public class Main {
 		// Initialise the Neighbour Discovery Protocol with the set of nodes created from the parser
 		new NeighbourDiscoveryProtocol(nodes);
 		
+		// Network Routing Protocol
+		new NetworkRoutingProtocol(nodes.size());
+		
 		// Initialise the Base Station
-		new BaseStation(nodes);
-		BaseStation.contstrucMST();
+		BaseStation baseStation = new BaseStation(nodes);
+		baseStation.contstrucMST();
 		
 		
 		while (true){
@@ -64,9 +70,14 @@ public class Main {
 			
 			// Testing if the leader knows the node to inform that they have the minimum edge
 			for (Node n : nodes.values()){
-				System.out.println("The minimum weighted edge to add for node " + n.getNodeID() + " is: " + n.minimumWeightedOutgoingEdgeOfTheComponent.getNode().getNodeID());
+//				System.out.println("The minimum weighted edge to add for node " + n.getNodeID() + " is: " + n.componentMWOE.getNode().getNodeID());
+				
+				if (n.hasParentNode() && !n.getMstNeighbourNodes().isEmpty()){
+					for (NodeInterface i : n.getMstNeighbourNodes().values()){
+						System.out.println("The neighbour of node " + n.getNodeID() + " in the MST is: " + i.getNodeID() + " and has parent " + n.getParentNode().getNodeID());
+					}
+				}
 			}
-			
 			
 			Thread.sleep(1000);
 		}

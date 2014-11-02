@@ -3,8 +3,9 @@
  * 1) the node which should be added as a neighbour
  * 2) the distance between the node which sent the discovery message and 1)
  */
-package message;
+package concreteMessage;
 
+import message.MessageInterface;
 import node.Node;
 import node.NodeInterface;
 
@@ -36,10 +37,18 @@ public class Repsonse implements MessageInterface {
 	@Override
 	public void performAction(Node node) {
 		node.addNeighbourNode(fromNode, distanceBetweenNodes);
+		
+		// After a response has been processed start constructing the MST
+//		MessageInterface broadcastMessage = new IdentifyNewEdgeBroadcast(null);
+//		node.getNodeThread().addMessageToNextRoundQueue(broadcastMessage);
+		
+		System.out.println("Processed Response message for node " + node.getNodeID());
+		node.readyForNextLevel = true;
 	}
 	
 	@Override
 	public void send(Node node) {
+		System.out.println("Sent response message from " + node.getNodeID() + " to " + toNode.getNodeID());
 		this.fromNode = node;
 		toNode.getNodeThread().addMessageToNodeQueue(this);
 	}

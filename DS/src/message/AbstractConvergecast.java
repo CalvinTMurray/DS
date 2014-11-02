@@ -17,7 +17,7 @@ import node.Node;
  * @param <T> the data associated with this convergecast
  *
  */
-public abstract class Convergecast<T> implements MessageInterface {
+public abstract class AbstractConvergecast<T> implements MessageInterface {
 	
 	private Payload<T> payload;
 	
@@ -25,7 +25,7 @@ public abstract class Convergecast<T> implements MessageInterface {
 	 * A convergecast message with the initial payload
 	 * @param data the data associated with this convergecast's payload
 	 */
-	public Convergecast(T data) {
+	public AbstractConvergecast(T data) {
 		payload = new Payload<T>(data);
 	}
 	
@@ -35,13 +35,12 @@ public abstract class Convergecast<T> implements MessageInterface {
 		// Might replace this with a lock on the resource, such that we lock until this condition is true!!
 		// Wait until we have received all the convergecast messages from our children
 		
-		while (node.getReceivedConvergecastMessageCount() < node.getMstChildNodes().size()){
-			System.out.println("Waiting on receiving all my child convergecast messages! Receieved: " + 
-					node.getReceivedConvergecastMessageCount() + " of " + node.getMstChildNodes().size());
-		}
-		
-		// Reset the number of messages received from this node's children
-		node.resetReceivedConvergecastMessageCount();
+		// TODO this won't work because we're waiting on convergecast messages from its children but we're blocking,
+		// so we can't process any other messages
+//		while (node.getReceivedConvergecastMessageCount() < node.getMstNeighbourNodes().size()){
+////			System.out.println("Waiting on receiving all my child convergecast messages! Receieved: " + 
+////					node.getReceivedConvergecastMessageCount() + " of " + node.getMstNeighbourNodes().size());
+//		}
 		
 		performActionOnReceivedPayload(node, payload);
 		
@@ -53,16 +52,13 @@ public abstract class Convergecast<T> implements MessageInterface {
 		// If we aren't the leader of the component then we should pass the message on to the parent
 		// Otherwise we can perform further actions on ourself
 		if (node.hasParentNode()){
-			this.send(node);
+			node.getNodeThread().addMessageToNextRoundQueue(this);
+//			this.send(node);
 		} else {
 			performActionIfNoParent(node, payload);
 		}
 		
-		// IMPORTANT!!! 
-		// Clear the node's payloads so that another message can use this node's payloads
-		node.clearReceivedPayloads();
 	}
-	
 	@Override
 	public void send(Node node) {
 		
@@ -70,15 +66,10 @@ public abstract class Convergecast<T> implements MessageInterface {
 			node.getParentNode().getNodeThread().addMessageToNodeQueue(this);
 		} else {
 			System.out.println("Node " + node.getNodeID() + " does not have a parent node");
-			System.out.println("I'm the leader? " + node.isLeader());
+//			System.out.println("Node " + node.getNodeID() + " is the leader? " + node.isLeader());
 			
 			node.getNodeThread().addMessageToNodeQueue(this);
 			
-//			if (node.isLeader()) {
-//				node.getNodeThread().addMessageToNodeQueue(this);
-//			} else {
-//				throw new Error("Can't complete convergecast. Node " + node.getNodeID() + " does not have a parent node and not the leader");
-//			}
 		}
 	}
 	
@@ -90,7 +81,8 @@ public abstract class Convergecast<T> implements MessageInterface {
 	public abstract void performActionOnReceivedPayload(Node node, Payload<T> payload);
 
 	/**
-	 * How each parent node should update the payload when they receive the convergecast message
+	 * How each parent node should update the payload when they receive the convergecast message 
+	 * (the updated payload is sent to the parent)
 	 * @param node the node to perform the update
 	 */
 	public abstract T updatePayload(Node node);
@@ -101,4 +93,10 @@ public abstract class Convergecast<T> implements MessageInterface {
 	 */
 	public abstract void performActionIfNoParent(Node node, Payload<T> payload);
 	
+	/**
+	 * Each node should perform this action after updating the payload 
+	 * (this action is performed after the node has sent the message on to its parent)
+	 * @param node the node which is to perform the action after updating the payload
+	 */
+	public abstract void performActionAfterConvergecast(Node node);
 }

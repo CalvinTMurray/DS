@@ -4,9 +4,7 @@
 package node;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * 
@@ -103,7 +101,7 @@ public class Node extends NodeMSTProps implements NodeInterface {
 	/**
 	 * Find the current Minimum Weighted Outgoing Edge and set it
 	 */
-	public void setCurrentMinimumWeightedOutgoingEdge(){
+	public void setCurrentMWOE(){
 		
 		
 		NodeInterface minimumDistanceNode = null;
@@ -114,7 +112,7 @@ public class Node extends NodeMSTProps implements NodeInterface {
 		Map<NodeInterface, Double> nodes = new HashMap<NodeInterface, Double>(neighbourNodes);
 		
 		// Remove the nodes which are already part of the MST
-		nodes.keySet().removeAll(getMstChildNodes().values());
+		nodes.keySet().removeAll(getMstNeighbourNodes().values());
 		
 		for (NodeInterface node : nodes.keySet()){
 			if (firstEntry) {
@@ -127,7 +125,12 @@ public class Node extends NodeMSTProps implements NodeInterface {
 			}
 		}
 		
-		super.setCurrentMWOE(new MWOE(minimumDistanceNode, distance));
+		localMWOE = new MWOE(minimumDistanceNode, distance);
+	}
+	
+	
+	public boolean isLeader(){
+		return (this.getNodeID() == leaderOfComponent);
 	}
 	
 	@Override

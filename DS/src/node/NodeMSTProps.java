@@ -18,31 +18,33 @@ import message.Payload;
  */
 public class NodeMSTProps extends NodeGeneralProps {
 
+	
 	// MST Structures
 	private int componentID;
-	private boolean leaderOfComponent;
-	private TreeMap<Integer, NodeInterface> mstChildNodes;
+	private TreeMap<Integer, NodeInterface> mstNeighbourNodes;
 	private NodeInterface mstParentNode;
 	
 	private int receivedConvergecastMessages;
 	
-	// TODO variable for the nextMinimumWeightedEdge in the MST
-	private MWOE currentMWOE;
-	// TODO variable that stores the payloads received from convergecast messages
-	// so that they can be compared to find the payload that contains the minimum weighted edge
+	// The Minimum Weighted Outgoing Edge of this node
+	protected MWOE localMWOE;
 	private List<Payload<?>> receivedPayloads;
 	
+	// Set by the leader, other nodes use this when another node tries to merge components
+	// Used for leader election
+	public MWOE componentMWOE;
 	
-	public MWOE minimumWeightedOutgoingEdgeOfTheComponent;
+	protected int leaderOfComponent;
 	
+	public boolean readyForNextLevel;
 	
 
 	/**
 	 * Initialise the MST data structures
 	 */
 	protected void initMSTStructures(){
-		leaderOfComponent = true;
-		mstChildNodes = new TreeMap<Integer, NodeInterface>(Collections.reverseOrder());
+		leaderOfComponent = this.getNodeID();
+		mstNeighbourNodes = new TreeMap<Integer, NodeInterface>();
 		receivedPayloads = new ArrayList<Payload<?>>();
 	}
 	
@@ -63,35 +65,31 @@ public class NodeMSTProps extends NodeGeneralProps {
 	}
 	
 	/**
-	 * 
-	 * @return whether this node is the current leader in its component
-	 */
-	public boolean isLeader() {
-		return leaderOfComponent;
-	}
-
-	/**
 	 * Set whether this node is the leader of the component
 	 * @param leader
 	 */
-	public void setLeader(boolean leader) {
+	public void setLeaderID(int leader) {
 		this.leaderOfComponent = leader;
+	}
+	
+	public int getLeaderID(){
+		return leaderOfComponent;
 	}
 	
 	/**
 	 * Get all the child nodes for this node's MST
 	 * @return the child nodes of this node
 	 */
-	public TreeMap<Integer, NodeInterface> getMstChildNodes() {
-		return mstChildNodes;
+	public synchronized TreeMap<Integer, NodeInterface> getMstNeighbourNodes() {
+		return mstNeighbourNodes;
 	}
 	
 	/**
 	 * Add a child node to this node for this MST
 	 * @param node the child node
 	 */
-	public void addMstChildNode(NodeInterface node){
-		mstChildNodes.put(node.getNodeID(), node);
+	public void addMstNeighbourNode(NodeInterface node){
+		mstNeighbourNodes.put(node.getNodeID(), node);
 	}
 
 	/**
@@ -144,16 +142,8 @@ public class NodeMSTProps extends NodeGeneralProps {
 	 * 
 	 * @return the current Minimum Weighted Outgoing Edge
 	 */
-	public MWOE getCurrentMWOE() {
-		return currentMWOE;
-	}
-	
-	/**
-	 * Set the current Minimum Weighted Outgoing Edge
-	 * @param currentMWOE
-	 */
-	protected void setCurrentMWOE(MWOE currentMWOE) {
-		this.currentMWOE = currentMWOE;
+	public MWOE getLocalMWOE() {
+		return localMWOE;
 	}
 	
 	/**

@@ -1,9 +1,10 @@
 /**
  * A discovery message which can be sent between nodes within distance R
  */
-package message;
+package concreteMessage;
 
 import main.NeighbourDiscoveryProtocol;
+import message.MessageInterface;
 import node.Node;
 import node.NodeInterface;
 
@@ -12,7 +13,7 @@ import node.NodeInterface;
  * @author Calvin.T.Murray (S1126659)
  *
  */
-public class Discover implements MessageInterface {
+public class Discovery implements MessageInterface {
 
 	// The node which sent the discovery message (used in the response, similar to an IP address)
 	private NodeInterface fromNode;	
@@ -21,9 +22,8 @@ public class Discover implements MessageInterface {
 	
 	/**
 	 * Create a new discovery message
-	 * @param node the node which is going to send the message
 	 */
-	public Discover() {
+	public Discovery() {
 	}
 	
 	/**
@@ -43,9 +43,12 @@ public class Discover implements MessageInterface {
 	}
 	
 	@Override
-	public void performAction(Node nodeToAddAsNeighbour) {
+	public void performAction(Node node) {
 		MessageInterface response = new Repsonse(fromNode, distanceBetweenNodes);
-		response.send(nodeToAddAsNeighbour);
+		node.getNodeThread().addMessageToNextRoundQueue(response);
+		
+		System.out.println("Processed Discovery message for node " + node.getNodeID());
+//		response.send(node);
 	}
 
 	@Override
@@ -54,5 +57,9 @@ public class Discover implements MessageInterface {
 		// Send the discovery message to the NeighbourDiscoveryProtocol (which forwards 
 		// the message to nodes that are within range)
 		NeighbourDiscoveryProtocol.getInstance().sendDiscoveryMessage(this);
+	}
+	
+	public void setFromNode(NodeInterface node){
+		this.fromNode = node;
 	}
 }

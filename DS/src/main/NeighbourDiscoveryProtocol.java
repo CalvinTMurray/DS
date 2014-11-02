@@ -10,7 +10,7 @@ package main;
 import java.util.HashMap;
 import java.util.Map;
 
-import message.Discover;
+import concreteMessage.Discovery;
 import node.Node;
 import node.NodeThread;
 
@@ -45,7 +45,7 @@ public class NeighbourDiscoveryProtocol {
 	 * When invoked a message is sent to all near by nodes requesting an acknowledgement
 	 * @param message
 	 */
-	public void sendDiscoveryMessage(Discover message){
+	public void sendDiscoveryMessage(Discovery message){
 		// This is the node which has sent the discovery message and is waiting on responses from its neighbours
 		Node nodeToSendDiscovery = nodes.get(message.getSentFromNode().getNodeID());
 		// These are the nodes which the discovery message will go to and thus respond to
@@ -53,8 +53,10 @@ public class NeighbourDiscoveryProtocol {
 		
 		// Send the discovery message
 		for (NodeThread node : nodesToReceiveResponseFrom.keySet()){
-			message.setDistance(nodesToReceiveResponseFrom.get(node));
-			node.addMessageToNodeQueue(message);
+			Discovery forwardDiscovery = new Discovery();
+			forwardDiscovery.setFromNode(message.getSentFromNode());
+			forwardDiscovery.setDistance(nodesToReceiveResponseFrom.get(node));
+			node.addMessageToNodeQueue(forwardDiscovery);
 		}
 	}
 	
